@@ -24,14 +24,14 @@ source leaprc.protein.ff19SB
 loadamberparams frcmod.ions1lm_126_iod_opc 				
 source leaprc.water.opc
 source leaprc.lipid17
-system = loadpdb ${pdbfilename}
+system = loadpdb bilayer_${pdbfilename}
 set system box { ${dims} }
 saveamberparm system ${runname}.prmtop ${runname}.inpcrd
 quit
 EOF
 tleap -f system.in
 
-a=$(grep -n -m 1 "TER" ${pdbfilename} |cut -f1 -d:)
+a=$(grep -n -m 1 "TER" bilayer_${pdbfilename} |cut -f1 -d:)
 atomcount=$(expr $a - 3)
 echo $atomcount
 
@@ -96,13 +96,10 @@ echo 'Production minimization'
 mpirun -np 4 sander.MPI -O -i min.in -o minmdout -p ${runname}.prmtop -c ${runname}.inpcrd -r ${runname}_min.xyz -x ${runname}_min.nc
 date +"%T"
 echo 'Production heating'
-sander -O -i heat.in -o heatmdout -p ${runname}.prmtop -c ${runname}_min.xyz -r ${runname}_heat.xyz -x ${runname}_heat.nc
-date +"%T"
-echo 'Production density equilibriation'
-pmemd.cuda -O -i density.in -o densitymdout -p ${runname}.prmtop -c ${runname}_heat.xyz -r ${runname}_dens.xyz -x ${runname}_dens.nc
-date +"%T"
-echo 'Production equilibriation'
-pmemd.cuda -O -i equil.in -o equilmdout -p ${runname}.prmtop -c ${runname}_dens.xyz -r ${runname}_equil.xyz -x ${runname}_equil.nc
+mpirun -np 32 sander.MPI -O -i heat.in -o heatmdout -p ${runname}.prmtop -c ${runname}_min.xyz -r ${runname}_heat.xyz -x ${runname}_heat.nc
+
+# Performs 100 us of production MD, writing 50 000 frames of trajectory in total over 20 runs. 
+
 date +"%T"
 echo 'Production run 1'
 pmemd.cuda -O -i prod.in -o prodmdout -p ${runname}.prmtop -c ${runname}_equil.xyz -r ${runname}_prod1.xyz -x ${runname}_prod1.nc 
@@ -115,3 +112,30 @@ do
     echo 'Production run' $j
 	pmemd.cuda -O -i prod.in -o prod"$j"mdout -p ${runname}.prmtop -c ${runname}_prod"$(($j-1))".xyz -r ${runname}_prod"$j".xyz -x ${runname}_prod"$j".nc 
 done
+
+j=21
+
+## final_prod.in, writes all molecules in the system to trajectory.
+cat <<EOF > finalprod.in
+equil ${runname}
+ &cntrl
+  ig=-1
+  iwrap =1
+  imin=0,irest=1,ntx=5,
+  nstlim=2500000,dt=0.002,
+  ntc=2,ntf=2,
+  cut=12, ntb=1, ntp=0, tautp=10.0,
+  ntpr=1000, ntwx=1000, ntwr=10000, ntwv=-1, ioutfm=1,
+  ntt=1,
+  temp0=300.0,
+  tol=1.0e-8,jfastw=0,
+ /
+ &ewald
+  dsum_tol=1.0e-6,
+  order=4, skinnb=2.0, vdwmeth=1,
+ /
+EOF
+
+## A final production run writing the entire system to trajectory.
+
+pmemd.cuda -O -i finalprod.in -o prod"$j"mdout -p ${runname}.prmtop -c ${runname}_prod"$(($j-1))".xyz -r ${runname}_prod"$j".xyz -x ${runname}_prod"$j".nc
