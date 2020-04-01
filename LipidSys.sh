@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 set -e
 #export AMBERHOME=/home/thomas/amber18
 #source $AMBERHOME/amber.sh
