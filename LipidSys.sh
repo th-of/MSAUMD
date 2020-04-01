@@ -17,9 +17,6 @@ packmol-memgen --pdb ${pdbfilename} --lipids DOPE:DOPG --ratio 3:1 --overwrite
 ## Calculate box size:
 
 dims=$(./vmd_box_dims.sh -i bilayer_${pdbfilename} -s water)
-dim1=$(echo $dims | cut -d , -f 1)
-dim2=$(echo $dims | cut -d , -f 2)
-dim3=$(echo $dims | cut -d , -f 3)
 
 ## Generate AMBER input topology (prmtop) and input coordinates (inpcrd)
 cat << EOF > system.in
@@ -28,7 +25,7 @@ loadamberparams frcmod.ions1lm_126_iod_opc
 source leaprc.water.opc
 source leaprc.lipid17
 system = loadpdb ${pdbfilename}
-set system box { ${dim1}${dim2}${dim3} }
+set system box { ${dims} }
 saveamberparm system ${runname}.prmtop ${runname}.inpcrd
 quit
 EOF
