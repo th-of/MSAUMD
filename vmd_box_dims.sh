@@ -49,5 +49,5 @@ z_max=`grep Dimensions water_box_dims.txt | awk '{print $7}' | sed 's/}//'`
 x_diff=`echo "$x_max - $x_min" | bc`
 y_diff=`echo "$y_max - $y_min" | bc`
 z_diff=`echo "$z_max - $z_min" | bc`
-echo $x_diff, $y_diff, $z_diff
+echo $x_diff $y_diff $z_diff
 rm water_box_dims.tcl water_box_dims.txt
