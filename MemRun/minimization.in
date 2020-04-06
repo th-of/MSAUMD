@@ -1,13 +1,25 @@
 Initial minimization of lipid tails
 &cntrl
-imin=1, ! Run minimization
-maxcyc=5000, ! Max number of minimization cycles 
-ncyc=2500, ! 
-ntpr=100, ! write energies every ntpr steps
-ntxo=2, ! Write NetCDF format
-cut=9.0, ! nonbonded cutoff
-ntr=1, 
+ig=-1,                      ! random seed
+imin=1,                     ! Run minimization
+maxcyc=25000,               ! Max number of minimization cycles 
+ncyc=10000,                 ! 
+ntb=1,                      ! constant volume
+dt=0.001,                   ! timestep (default)
+ntc=1,
+ntf=1,                      ! complete force evaluation
+ntpr=100,                   ! write energies every ntpr steps
+ntwx=100,                   ! write trajectory every ntwx steps
+ntxo=2,                     ! Write NetCDF format
+cut=10.0,                   ! nonbonded cutoff
+ntr=1,                      ! apply restraints
 nmropt=1,
-restraint_wt=1.0
-restraintmask='!:OL', ! Restrain all except oleoyl lipid tails / acyl chains
+restraint_wt=1e4            ! degree of restraint
+restraintmask='!:OL',       ! Restrain all except oleoyl lipid tails / acyl chains
+ioutfm=0,                   ! Write trajectory to text
 /
+&wt type='END',
+/
+Group input for restrained atoms
+RES !:OL
+END
