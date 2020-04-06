@@ -1,0 +1,11 @@
+Memgen AMBER minimization with restraints
+ &cntrl
+  nmropt = 0,
+  imin = 1,
+  maxcyc = 10000,
+  ncyc = 5000,
+  ntpr=100,                   ! write energies every ntpr steps
+  ntwx=100,                   ! write trajectory every ntwx steps
+  ntxo=2,                     ! Write NetCDF format
+  ioutfm=0,                   ! Write trajectory to text
+ &end
