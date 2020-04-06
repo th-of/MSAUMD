@@ -96,7 +96,7 @@ echo 'Production minimization'
 mpirun -np 4 sander.MPI -O -i min.in -o minmdout -p ${runname}.prmtop -c ${runname}.inpcrd -r ${runname}_min.xyz -x ${runname}_min.nc
 date +"%T"
 echo 'Production heating'
-mpirun -np 32 sander.MPI -O -i heat.in -o heatmdout -p ${runname}.prmtop -c ${runname}_min.xyz -r ${runname}_heat.xyz -x ${runname}_heat.nc
+mpirun -np 4 sander.MPI -O -i heat.in -o heatmdout -p ${runname}.prmtop -c ${runname}_min.xyz -r ${runname}_heat.xyz -x ${runname}_heat.nc
 
 # Performs 100 us of production MD, writing 50 000 frames of trajectory in total over 20 runs. 
 
