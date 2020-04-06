@@ -1,8 +1,13 @@
 Initial minimization of lipid tails
 &cntrl
-imin=1, maxcyc=200,
-ntpr=5,
-ntr=1,
+imin=1, ! Run minimization
+maxcyc=5000, ! Max number of minimization cycles 
+ncyc=2500, ! 
+ntpr=100, ! write energies every ntpr steps
+ntxo=2, ! Write NetCDF format
+cut=9.0, ! nonbonded cutoff
+ntr=1, 
+nmropt=1,
 restraint_wt=1.0
-restraintmask=' ',
+restraintmask='!:OL', ! Restrain all except oleoyl lipid tails / acyl chains
 /
