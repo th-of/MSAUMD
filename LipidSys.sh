@@ -185,7 +185,7 @@ pmemd.cuda -O -i equil.in -o equil1mdout -p ${runname}.prmtop -c heat2.rst -r eq
 skinnb=5
 j=2
 
-while [ $j -lt 9 ] && [ $skinnb -lt 20 ] 
+while [ $j -lt 11 ] && [ $skinnb -lt 20 ] 
 do
     date +"%T"
     echo 'Equilibriation run' $j
@@ -193,7 +193,6 @@ do
 	if [ $? -eq 0 ]
 	then
 	 j=$(expr ${j} + 1)
-	 exit 0
 	else
 	 grep -rl skinnb=${skinnb} equil.in | xargs sed -i 's/skinnb=${skinnb}/skinnb="$(($j+1))"/g'
 	 skinnb=$(expr ${skinnb} + 1)
@@ -201,3 +200,36 @@ do
 done
 
 echo "Equilibriation finished with a skinnb value of $skinnb."
+
+
+cat <<EOF > prod.in
+Lipid production 303K 125ns
+ &cntrl
+  imin=0,          ! Molecular dynamics
+  ntx=5,           ! Positions and velocities read formatted
+  irest=1,         ! Restart calculation
+  ntc=2,           ! SHAKE on for bonds with hydrogen
+  ntf=2,           ! No force evaluation for bonds with hydrogen
+  tol=0.0000001,   ! SHAKE tolerance
+  nstlim=62500000, ! Number of MD steps
+  ntt=3,           ! Langevin thermostat
+  gamma_ln=1.0,    ! Collision frequency for thermostat
+  temp0=303.0,     ! Simulation temperature (K)
+  ntpr=5000,       ! Print to mdout every ntpr steps
+  ntwr=500000,     ! Write a restart file every ntwr steps
+  ntwx=5000,       ! Write to trajectory file every ntwx steps
+  dt=0.002,        ! Timestep (ps)
+  ig=-1,           ! Random seed for Langevin thermostat
+  ntb=2,           ! Constant pressure periodic boundary conditions
+  ntp=2,           ! Anisotropic pressure coupling
+  cut=10.0,        ! Nonbonded cutoff (Angstroms)
+  ioutfm=1,        ! Write binary NetCDF trajectory
+  ntxo=2,          ! Write binary restart file
+ /
+EOF
+
+date +"%T"
+echo 'Production run'
+pmemd.cuda -O -i prod.in -o prod1mdout -p ${runname}.prmtop -c equil10.rst -r prod1.rst -x prod1.nc
+date +"%T"
+
