@@ -188,7 +188,7 @@ j=2
 while [ $j -lt 9 ] && [ $skinnb -lt 20 ] 
 do
     date +"%T"
-    echo 'Production run' $j
+    echo 'Equilibriation run' $j
 	pmemd.cuda -O -i equil.in -o equil"$j"mdout -p ${runname}.prmtop -c equil"$(($j-1))".rst -r equil"$j".rst -x equil"$j".nc
 	if [ $? -eq 0 ]
 	then
