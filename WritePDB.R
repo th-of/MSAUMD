@@ -11,16 +11,18 @@ readpdb <- function(x){
 fils <- list.files(path = ".", pattern = "[A-Z]{1}.pdb")
 pdbs <- lapply(fils, readpdb)
 
-buttonpress <- function(...){
+savepdb <- function(...){
+  write.pdb(pdbs, file = "testcomplex.pdb")
+}
+
+buttonpress <- function(h, ...){
   rgl.clear(type = "all")
   struc1 <- Txyz(pdbs[[1]], x = svalue(xval), y = svalue(yval), z = svalue(zval))
   print(svalue(zval))
   struc2 <- merge(struc1, pdbs[[2]])
   pdbs <- pdbs[-2]
   pdbs[[1]] <- struc2
-  rgl.close()
-  rgl.open()
-  return(pdbs2)
+  pdbs <<- pdbs
 }
 redraw <- function(...){
   a <- Txyz(pdbs[[1]], x = svalue(xval))
@@ -69,23 +71,7 @@ y_set <- gbutton(text = "Y view", border = TRUE, container = group, handler = y_
 merger <- gaction("Merge", handler=buttonpress)
 mergebtn <- gbutton(action=merger, cont=group)
 
+saves <- gaction("Save", handler=savepdb)
+mergebtn <- gbutton(action=saves, cont=group)
+
 visible(window) <- TRUE
-
-# gakb[["atoms"]][["chainid"]] <- "B"
-# 
-# gakab <- merge(A.pdb, B.pdb)
-# 
-# visualize(gakab, type = "s")
-# 
-# write.pdb(gakab, file = "/home/thomas/MD/GarKS complex/gakab_fix.pdb")
-# 
-# write("END", file = "/home/thomas/MD/GarKS complex/C_.pdb", append = TRUE)
-# 
-# complex <- read.pdb("/home/thomas/MD/GarKS complex/complex.pdb", ATOM = TRUE, HETATM = TRUE, CRYST1 = TRUE, CONECT = TRUE, TITLE = TRUE, REMARK = TRUE, MODEL = 1)
-# 
-# complex <- merge(gaka, complex)
-# 
-# visualize(complex)
-# 
-# gakc_trans <- Txyz(gakc, x=20)
-
