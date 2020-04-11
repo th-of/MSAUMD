@@ -4,26 +4,39 @@ library("Rpdb")
 library("gWidgets")
 options(guiToolkit="RGtk2")
 
-
-for (i in list.files(path = ".", pattern = "[A-Z]{1}.pdb")){
-  assign(paste0(i), read.pdb(i, ATOM = TRUE, HETATM = TRUE, CRYST1 = TRUE, CONECT = TRUE, TITLE = TRUE, REMARK = TRUE, MODEL = 1))
+readpdb <- function(x){
+  read.pdb(x, ATOM = TRUE, HETATM = TRUE, CRYST1 = TRUE, CONECT = TRUE, TITLE = TRUE, REMARK = TRUE, MODEL = 1)
 }
 
+fils <- list.files(path = ".", pattern = "[A-Z]{1}.pdb")
+pdbs <- lapply(fils, readpdb)
+
+buttonpress <- function(...){
+  rgl.clear(type = "all")
+  struc1 <- Txyz(pdbs[[1]], x = svalue(xval), y = svalue(yval), z = svalue(zval))
+  print(svalue(zval))
+  struc2 <- merge(struc1, pdbs[[2]])
+  pdbs <- pdbs[-2]
+  pdbs[[1]] <- struc2
+  rgl.close()
+  rgl.open()
+  return(pdbs2)
+}
 redraw <- function(...){
-  a <- Txyz(A.pdb, x = svalue(xval))
-  aggr <- merge(a, B.pdb)
+  a <- Txyz(pdbs[[1]], x = svalue(xval))
+  aggr <- merge(a, pdbs[[2]])
   return(c(rgl.clear(type = "all"), visualize(aggr, add = TRUE)))
 }
 
 redraw_y <- function(...){
-  a <- Txyz(A.pdb, y = svalue(yval))
-  aggr <- merge(a, B.pdb)
+  a <- Txyz(pdbs[[1]], y = svalue(yval))
+  aggr <- merge(a, pdbs[[2]])
   return(c(rgl.clear(type = "all"), visualize(aggr, add = TRUE)))
 }
 
 redraw_z <- function(...){
-  a <- Txyz(A.pdb, z = svalue(zval))
-  aggr <- merge(a, B.pdb)
+  a <- Txyz(pdbs[[1]], z = svalue(zval))
+  aggr <- merge(a, pdbs[[2]])
   return(c(rgl.clear(type = "all"), visualize(aggr, add = TRUE)))
 }
 
@@ -53,8 +66,8 @@ z_set <- gbutton(text = "Z view", border = TRUE, container = group, handler = z_
 x_set <- gbutton(text = "X view", border = TRUE, container = group, handler = x_view)
 y_set <- gbutton(text = "Y view", border = TRUE, container = group, handler = y_view)
 
-act <- gaction("merge", handler=function(...) {print(svalue(xval))})
-b3 <- gbutton(action=act, cont=group)
+merger <- gaction("Merge", handler=buttonpress)
+mergebtn <- gbutton(action=merger, cont=group)
 
 visible(window) <- TRUE
 
@@ -75,5 +88,4 @@ visible(window) <- TRUE
 # visualize(complex)
 # 
 # gakc_trans <- Txyz(gakc, x=20)
-
 
