@@ -8,11 +8,26 @@ readpdb <- function(x){
   read.pdb(x, ATOM = TRUE, HETATM = TRUE, CRYST1 = TRUE, CONECT = TRUE, TITLE = TRUE, REMARK = TRUE, MODEL = 1)
 }
 
-fils <- list.files(path = ".", pattern = "[A-Z]{1}.pdb")
-pdbs <- lapply(fils, readpdb)
-
 savepdb <- function(...){
-  write.pdb(pdbs, file = "testcomplex.pdb")
+  write.pdb(pdbs, file = "temp.pdb")
+  x <- readLines("temp.pdb")
+  cleanpdb <- x[grep(x, pattern = "[A-Z]{3}\\s{1}[A]{1}\\s{2}")]
+  cleanpdb <- append(cleanpdb, "TER")
+  chains <- chains[-1]
+  for (i in chains){
+    cleanpdb <- append(cleanpdb, x[grep(x, pattern = paste0("[A-Z]{3}\\s{1}[", i, "]{1}\\s{2}"))])
+    cleanpdb <- append(cleanpdb, "TER")
+  }
+  cleanpdb <- append(cleanpdb, "END")
+  writeLines(cleanpdb, "complex.pdb")
+  file.remove("temp.pdb")
+}
+
+chainname <- function(x){
+  for (i in 1:length(x)){
+    x[[i]][["atoms"]][["chainid"]] <- paste("", LETTERS, sep = "")[i]
+  }
+  return(x)
 }
 
 buttonpress <- function(h, ...){
@@ -51,6 +66,11 @@ x_view <- function(...){
 y_view <- function(...){
   return(view3d(theta = 0, phi = 90))
 }
+
+fils <- list.files(path = ".", pattern = "[A-Z]{1}.pdb")
+chains <- paste("", LETTERS, sep = "")[1:length(fils)]
+pdbs <- lapply(fils, readpdb)
+pdbs <- chainname(pdbs)
 
 window <- gwindow("Translation", visible=FALSE)
 group <- ggroup(horizontal = FALSE, cont = window, expand = TRUE)
