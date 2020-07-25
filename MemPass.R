@@ -3,7 +3,7 @@
 # parm prmtop
 # trajin nc
 # trajin filename.pdb pdb multi start x stop y
-# https://math.stackexchange.com/questions/1472049/check-if-a-point-is-inside-a-rectangular-shaped-area-3d
+# https://math.stackexchange.com/questions/1472049/check-if-a-point-is-inside-a-rectangular-shaped-area-3d  
 library("bio3d")
 
 files <- list.files("./pdbs")
@@ -35,12 +35,15 @@ P_7 <- c(x_min, y_max, z_max)
 P_8 <- c(x_min, y_min, z_max)
 
 
-for (i in numfils){
+for (i in 1:length(files)){
   a <- read.pdb(paste0("./pdbs/", files[i]), ATOM.only = TRUE)
   frame <- as.data.frame(a$atom)
   frame <- frame[which(frame$resid == 'WAT'),]
   l[[i]] <- frame
 }
 
-
+#Water molecule atom with the lowest z
+# which.min(l[[1]]$z) = 34878
+# The original index value of this atom corresponding to 'serial' in VMD:
+# row.names(l[[1]][34878,])
 
