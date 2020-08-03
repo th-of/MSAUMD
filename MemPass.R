@@ -3,7 +3,6 @@
 # parm prmtop
 # trajin nc
 # trajout filename.pdb pdb multi start x stop y
-# https://math.stackexchange.com/questions/1472049/check-if-a-point-is-inside-a-rectangular-shaped-area-3d  
 library("bio3d")
 
 files <- list.files("./pdbs")
@@ -51,24 +50,30 @@ for (i in 1:length(files)){
 
 counts <- c()
 count <- l[[50]][13259,][1,11]
+keep <- c()
 
 for (n in 1:length(l[[1]]$z)){
   for (m in 1:length(l)){
     counts[m] <- l[[m]][n,11]
   }
-  if (any(counts < 30) && any(counts > 40) && any(counts > 30 & counts < 40)){
-    print(l[[m]][n,])
-    print(counts)
+  if (any(counts < 25) && any(counts > 45) && any(counts > 25 & counts < 45)){
+    counts[101] <- as.integer(row.names(l[[m]][n,]))
+    keep <- rbind(keep, counts, deparse.level = 0)
   }
 }
 
+for (k in 1:(length(keep[,1]))){
+  keepNotJumped <- keep[k,1:99] - keep[k,2:100]
+  if (any(abs(keepNotJumped) > 10) == FALSE){
+    print(keep[k,101])
+  }
+}
+keepNotJumped <- keep[1,1:99] - keep[1,2:100]
 
 
-waters <- l[[1:100]]$z
-
-criteria <- any(count < 20) && any(count > 40) && any(count > 20 & count < 40)
-
-criteria <- any(vector < 20) && any(vector > 40) && any(vector > 20 & vector < 40)
+# waters <- l[[1:100]]$z
+# criteria <- any(count < 20) && any(count > 40) && any(count > 20 & count < 40)
+# criteria <- any(vector < 20) && any(vector > 40) && any(vector > 20 & vector < 40)
 
 # criteria <- sum(vector[vector < 15 & vector > 45 & (vector > 15 & vector < 45)]) > 3
 #Water molecule atom with the lowest z
